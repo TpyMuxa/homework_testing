@@ -1,10 +1,8 @@
 package org.example.controller;
 
+import org.example.exception.DivByZeroException;
 import org.example.service.CalculatorService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/calculator")
@@ -12,6 +10,7 @@ public class CalculatorController {
     private final CalculatorService calculatorService;
 
     public CalculatorController(CalculatorService calculatorService) {
+
         this.calculatorService = calculatorService;
     }
 
@@ -48,9 +47,7 @@ public class CalculatorController {
         if (a == null || b == null) {
             return "Какой-то из параметров не передан!";
         }
-        if (operation.equals("/") && b == 0) {
-            return "На ноль делить нельзя !";
-        }
+
         int result = switch (operation) {
             case "-" -> calculatorService.minus(a, b);
             case "*" -> calculatorService.multiply(a, b);
@@ -58,5 +55,10 @@ public class CalculatorController {
             default -> calculatorService.plus(a, b);
         };
         return "%d %s %d = %d".formatted(a, operation, b, result);
+    }
+
+    @ExceptionHandler(DivByZeroException.class)
+    public String handleDivByZeroException() {
+        return "На ноль делить нельзя!";
     }
 }
